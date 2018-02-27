@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy, ugettext as _
 from django import forms
 from django.db.models.loading import cache
 
+
 class FieldFile(File):
     def __init__(self, instance, field, name):
         self.instance = instance
@@ -49,26 +50,31 @@ class FieldFile(File):
         if not hasattr(self, '_file'):
             self._file = self.storage.open(self.name, 'rb')
         return self._file
+
     file = property(_get_file)
 
     def _get_path(self):
         self._require_file()
         return self.storage.path(self.name)
+
     path = property(_get_path)
 
     def _get_url(self):
         self._require_file()
         return self.storage.url(self.name)
+
     url = property(_get_url)
 
     def _get_size(self):
         self._require_file()
         return self.storage.size(self.name)
+
     size = property(_get_size)
 
     def open(self, mode='rb'):
         self._require_file()
         return super(FieldFile, self).open(mode)
+
     # open() doesn't alter the file's contents, but it does reset the pointer
     open.alters_data = True
 
@@ -87,6 +93,7 @@ class FieldFile(File):
         # Save the object because it has changed, unless save is False
         if save:
             self.instance.save()
+
     save.alters_data = True
 
     def delete(self, save=True):
@@ -95,7 +102,7 @@ class FieldFile(File):
         if hasattr(self, '_file'):
             self.close()
             del self._file
-            
+
         self.storage.delete(self.name)
 
         self._name = None
@@ -107,6 +114,7 @@ class FieldFile(File):
 
         if save:
             self.instance.save()
+
     delete.alters_data = True
 
     def __getstate__(self):
@@ -116,13 +124,15 @@ class FieldFile(File):
         # be restored later, by FileDescriptor below.
         return {'_name': self.name, '_closed': False}
 
+
 class FileDescriptor(object):
     def __init__(self, field):
         self.field = field
 
     def __get__(self, instance=None, owner=None):
         if instance is None:
-            raise AttributeError("The '%s' attribute can only be accessed from %s instances." % (self.field.name, owner.__name__))
+            raise AttributeError(
+                "The '%s' attribute can only be accessed from %s instances." % (self.field.name, owner.__name__))
         file = instance.__dict__[self.field.name]
         if not isinstance(file, FieldFile):
             # Create a new instance of FieldFile, based on a given file name
@@ -136,6 +146,7 @@ class FileDescriptor(object):
 
     def __set__(self, instance, value):
         instance.__dict__[self.field.name] = value
+
 
 class FileField(Field):
     attr_class = FieldFile
@@ -179,8 +190,8 @@ class FileField(Field):
         # and it's not the default value for future objects,
         # delete it from the backend.
         if file and file.name != self.default and \
-            not sender._default_manager.filter(**{self.name: file.name}):
-                file.delete(save=False)
+                not sender._default_manager.filter(**{self.name: file.name}):
+            file.delete(save=False)
         elif file:
             # Otherwise, just close the file, so it doesn't tie up resources.
             file.close()
@@ -210,6 +221,7 @@ class FileField(Field):
         defaults.update(kwargs)
         return super(FileField, self).formfield(**defaults)
 
+
 class ImageFieldFile(ImageFile, FieldFile):
     def save(self, name, content, save=True):
         # Repopulate the image dimension cache.
@@ -228,6 +240,7 @@ class ImageFieldFile(ImageFile, FieldFile):
         if hasattr(self, '_dimensions_cache'):
             del self._dimensions_cache
         super(ImageFieldFile, self).delete(save)
+
 
 class ImageField(FileField):
     attr_class = ImageFieldFile
