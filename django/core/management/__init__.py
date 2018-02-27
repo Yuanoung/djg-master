@@ -369,5 +369,6 @@ def execute_manager(settings_mod, argv=None):
     Like execute_from_command_line(), but for use by manage.py, a
     project-specific django-admin.py utility.
     """
+    setup_environ(settings_mod)
     utility = ManagementUtility(argv)
     utility.execute()
