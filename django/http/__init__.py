@@ -4,6 +4,7 @@ from Cookie import SimpleCookie, CookieError
 from pprint import pformat
 from urllib import urlencode
 from urlparse import urljoin
+
 try:
     # The mod_python version is more efficient, so try importing it first.
     from mod_python.util import parse_qsl
@@ -17,12 +18,14 @@ from django.conf import settings
 from django.core.files import uploadhandler
 from utils import *
 
-RESERVED_CHARS="!*'();:@&=+$,/?%#[]"
+RESERVED_CHARS = "!*'();:@&=+$,/?%#[]"
 
 absolute_http_url_re = re.compile(r"^https?://", re.I)
 
+
 class Http404(Exception):
     pass
+
 
 class HttpRequest(object):
     """A basic HTTP request."""
@@ -39,8 +42,8 @@ class HttpRequest(object):
 
     def __repr__(self):
         return '<HttpRequest\nGET:%s,\nPOST:%s,\nCOOKIES:%s,\nMETA:%s>' % \
-            (pformat(self.GET), pformat(self.POST), pformat(self.COOKIES),
-            pformat(self.META))
+               (pformat(self.GET), pformat(self.POST), pformat(self.COOKIES),
+                pformat(self.META))
 
     def get_host(self):
         """Returns the HTTP host using the environment or request headers."""
@@ -118,10 +121,11 @@ class HttpRequest(object):
         """Returns a tuple of (POST QueryDict, FILES MultiValueDict)."""
         self.upload_handlers = ImmutableList(
             self.upload_handlers,
-            warning = "You cannot alter upload handlers after the upload has been processed."
+            warning="You cannot alter upload handlers after the upload has been processed."
         )
         parser = MultiPartParser(META, post_data, self.upload_handlers, self.encoding)
         return parser.parse()
+
 
 class QueryDict(MultiValueDict):
     """
@@ -144,7 +148,7 @@ class QueryDict(MultiValueDict):
             from django.conf import settings
             encoding = settings.DEFAULT_CHARSET
         self.encoding = encoding
-        for key, value in parse_qsl((query_string or ''), True): # keep_blank_values=True
+        for key, value in parse_qsl((query_string or ''), True):  # keep_blank_values=True
             self.appendlist(force_unicode(key, encoding, errors='replace'),
                             force_unicode(value, encoding, errors='replace'))
         self._mutable = mutable
@@ -189,7 +193,7 @@ class QueryDict(MultiValueDict):
         for key, value in dict.items(self):
             dict.__setitem__(result, copy.deepcopy(key, memo), copy.deepcopy(value, memo))
         return result
-    
+
     def setlist(self, key, list_):
         self._assert_mutable()
         key = str_to_unicode(key, self.encoding)
@@ -248,6 +252,7 @@ class QueryDict(MultiValueDict):
             output.extend([urlencode({k: smart_str(v, self.encoding)}) for v in list_])
         return '&'.join(output)
 
+
 def parse_cookie(cookie):
     if cookie == '':
         return {}
@@ -263,20 +268,21 @@ def parse_cookie(cookie):
         cookiedict[key] = c.get(key).value
     return cookiedict
 
+
 class HttpResponse(object):
     """A basic HTTP response, with content and dictionary-accessed headers."""
 
     status_code = 200
 
     def __init__(self, content='', mimetype=None, status=None,
-            content_type=None):
+                 content_type=None):
         from django.conf import settings
         self._charset = settings.DEFAULT_CHARSET
         if mimetype:
-            content_type = mimetype     # For backwards compatibility
+            content_type = mimetype  # For backwards compatibility
         if not content_type:
             content_type = "%s; charset=%s" % (settings.DEFAULT_CONTENT_TYPE,
-                    settings.DEFAULT_CHARSET)
+                                               settings.DEFAULT_CHARSET)
         if not isinstance(content, basestring) and hasattr(content, '__iter__'):
             self._container = content
             self._is_string = False
@@ -295,8 +301,8 @@ class HttpResponse(object):
     def __str__(self):
         """Full HTTP message, including headers."""
         return '\n'.join(['%s: %s' % (key, value)
-            for key, value in self._headers.values()]) \
-            + '\n\n' + self.content
+                          for key, value in self._headers.values()]) \
+               + '\n\n' + self.content
 
     def _convert_to_ascii(self, *values):
         """Converts all values to ascii strings."""
@@ -393,12 +399,14 @@ class HttpResponse(object):
             raise Exception("This %s instance cannot tell its position" % self.__class__)
         return sum([len(chunk) for chunk in self._container])
 
+
 class HttpResponseRedirect(HttpResponse):
     status_code = 302
 
     def __init__(self, redirect_to):
         HttpResponse.__init__(self)
         self['Location'] = redirect_to
+
 
 class HttpResponsePermanentRedirect(HttpResponse):
     status_code = 301
@@ -407,17 +415,22 @@ class HttpResponsePermanentRedirect(HttpResponse):
         HttpResponse.__init__(self)
         self['Location'] = redirect_to
 
+
 class HttpResponseNotModified(HttpResponse):
     status_code = 304
+
 
 class HttpResponseBadRequest(HttpResponse):
     status_code = 400
 
+
 class HttpResponseNotFound(HttpResponse):
     status_code = 404
 
+
 class HttpResponseForbidden(HttpResponse):
     status_code = 403
+
 
 class HttpResponseNotAllowed(HttpResponse):
     status_code = 405
@@ -426,11 +439,13 @@ class HttpResponseNotAllowed(HttpResponse):
         HttpResponse.__init__(self)
         self['Allow'] = ', '.join(permitted_methods)
 
+
 class HttpResponseGone(HttpResponse):
     status_code = 410
 
     def __init__(self, *args, **kwargs):
         HttpResponse.__init__(self, *args, **kwargs)
+
 
 class HttpResponseServerError(HttpResponse):
     status_code = 500
@@ -438,9 +453,11 @@ class HttpResponseServerError(HttpResponse):
     def __init__(self, *args, **kwargs):
         HttpResponse.__init__(self, *args, **kwargs)
 
+
 # A backwards compatible alias for HttpRequest.get_host.
 def get_host(request):
     return request.get_host()
+
 
 # It's neither necessary nor appropriate to use
 # django.utils.encoding.smart_unicode for parsing URLs and form inputs. Thus,
@@ -457,4 +474,3 @@ def str_to_unicode(s, encoding):
         return unicode(s, encoding, 'replace')
     else:
         return s
-

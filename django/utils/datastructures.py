@@ -6,6 +6,7 @@ class MergeDict(object):
     If a key appears in more than one of the given dictionaries, only the
     first occurrence will be used.
     """
+
     def __init__(self, *dicts):
         self.dicts = dicts
 
@@ -50,10 +51,12 @@ class MergeDict(object):
         """Returns a copy of this object."""
         return self.__copy__()
 
+
 class SortedDict(dict):
     """
     A dictionary that keeps its keys in the order in which they're inserted.
     """
+
     def __new__(cls, *args, **kwargs):
         instance = super(SortedDict, cls).__new__(cls, *args, **kwargs)
         instance.keyOrder = []
@@ -164,8 +167,10 @@ class SortedDict(dict):
         super(SortedDict, self).clear()
         self.keyOrder = []
 
+
 class MultiValueDictKeyError(KeyError):
     pass
+
 
 class MultiValueDict(dict):
     """
@@ -185,6 +190,7 @@ class MultiValueDict(dict):
     which returns a list for every key, even though most Web forms submit
     single name-value pairs.
     """
+
     def __init__(self, key_to_list_mapping=()):
         super(MultiValueDict, self).__init__(key_to_list_mapping)
 
@@ -222,18 +228,18 @@ class MultiValueDict(dict):
             dict.__setitem__(result, copy.deepcopy(key, memo),
                              copy.deepcopy(value, memo))
         return result
-    
+
     def __getstate__(self):
         obj_dict = self.__dict__.copy()
         obj_dict['_data'] = dict([(k, self.getlist(k)) for k in self])
         return obj_dict
-    
+
     def __setstate__(self, obj_dict):
         data = obj_dict.pop('_data', {})
         for k, v in data.items():
             self.setlist(k, v)
         self.__dict__.update(obj_dict)
-        
+
     def get(self, key, default=None):
         """
         Returns the last data value for the passed key. If key doesn't exist
@@ -301,12 +307,12 @@ class MultiValueDict(dict):
     def values(self):
         """Returns a list of the last value on every key list."""
         return [self[key] for key in self.keys()]
-        
+
     def itervalues(self):
         """Yield the last value on every key list."""
         for key in self.iterkeys():
             yield self[key]
-    
+
     def copy(self):
         """Returns a copy of this object."""
         return self.__deepcopy__()
@@ -332,6 +338,7 @@ class MultiValueDict(dict):
         for key, value in kwargs.iteritems():
             self.setlistdefault(key, []).append(value)
 
+
 class DotExpandedDict(dict):
     """
     A special dictionary constructor that takes a dictionary in which the keys
@@ -353,6 +360,7 @@ class DotExpandedDict(dict):
     >>> DotExpandedDict({'c.1': 2, 'c.2': 3, 'c': 1})
     {'c': 1}
     """
+
     def __init__(self, key_to_list_mapping):
         for k, v in key_to_list_mapping.items():
             current = self
@@ -362,8 +370,9 @@ class DotExpandedDict(dict):
             # Now assign value to current position
             try:
                 current[bits[-1]] = v
-            except TypeError: # Special-case if current isn't a dict.
+            except TypeError:  # Special-case if current isn't a dict.
                 current = {bits[-1]: v}
+
 
 class ImmutableList(tuple):
     """
@@ -395,19 +404,20 @@ class ImmutableList(tuple):
             raise AttributeError, self.warning
 
     # All list mutation functions complain.
-    __delitem__  = complain
+    __delitem__ = complain
     __delslice__ = complain
-    __iadd__     = complain
-    __imul__     = complain
-    __setitem__  = complain
+    __iadd__ = complain
+    __imul__ = complain
+    __setitem__ = complain
     __setslice__ = complain
-    append       = complain
-    extend       = complain
-    insert       = complain
-    pop          = complain
-    remove       = complain
-    sort         = complain
-    reverse      = complain
+    append = complain
+    extend = complain
+    insert = complain
+    pop = complain
+    remove = complain
+    sort = complain
+    reverse = complain
+
 
 class DictWrapper(dict):
     """
@@ -418,6 +428,7 @@ class DictWrapper(dict):
     Used by the SQL construction code to ensure that values are correctly
     quoted before being used.
     """
+
     def __init__(self, data, func, prefix):
         super(DictWrapper, self).__init__(data)
         self.func = func
@@ -438,4 +449,3 @@ class DictWrapper(dict):
         if use_func:
             return self.func(value)
         return value
-

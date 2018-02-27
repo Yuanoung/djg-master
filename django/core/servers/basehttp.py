@@ -1,3 +1,4 @@
+# coding:utf-8
 """
 BaseHTTPServer that implements the Python WSGI protocol (PEP 333, rev 1.21).
 
@@ -31,7 +32,10 @@ class WSGIServerException(Exception):
 
 
 class FileWrapper(object):
-    """Wrapper to convert file-like objects to iterables"""
+    """Wrapper to convert file-like objects to iterables
+
+    这是个迭代器,针对缓冲区
+    """
 
     def __init__(self, filelike, blksize=8192):
         self.filelike = filelike
@@ -65,9 +69,9 @@ def _formatparam(param, value=None, quote=1):
 
     This will quote the value if needed or if quote is true.
     """
-    if value is not None and len(value) > 0:
+    if value is not None and len(value) > 0:  # 这里不能仅有value is not None，如果value为[]，则...
         if quote or tspecials.search(value):
-            value = value.replace('\\', '\\\\').replace('"', r'\"')
+            value = value.replace('\\', '\\\\').replace('"', r'\"')  # 对特殊的字符进行转义
             return '%s="%s"' % (param, value)
         else:
             return '%s=%s' % (param, value)
