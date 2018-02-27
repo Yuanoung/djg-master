@@ -19,14 +19,16 @@ from django.utils.http import http_date
 from django.utils._os import safe_join
 
 __version__ = "0.1"
-__all__ = ['WSGIServer','WSGIRequestHandler']
+__all__ = ['WSGIServer', 'WSGIRequestHandler']
 
 server_version = "WSGIServer/" + __version__
 sys_version = "Python/" + sys.version.split()[0]
 software_version = server_version + ' ' + sys_version
 
+
 class WSGIServerException(Exception):
     pass
+
 
 class FileWrapper(object):
     """Wrapper to convert file-like objects to iterables"""
@@ -34,10 +36,10 @@ class FileWrapper(object):
     def __init__(self, filelike, blksize=8192):
         self.filelike = filelike
         self.blksize = blksize
-        if hasattr(filelike,'close'):
+        if hasattr(filelike, 'close'):
             self.close = filelike.close
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         data = self.filelike.read(self.blksize)
         if data:
             return data
@@ -52,9 +54,11 @@ class FileWrapper(object):
             return data
         raise StopIteration
 
+
 # Regular expression that matches `special' characters in parameters, the
 # existence of which force quoting of the parameter value.
 tspecials = re.compile(r'[ \(\)<>@,;:\\"/\[\]\?=]')
+
 
 def _formatparam(param, value=None, quote=1):
     """Convenience function to format and return a key=value pair.
@@ -70,9 +74,11 @@ def _formatparam(param, value=None, quote=1):
     else:
         return param
 
+
 class Headers(object):
     """Manage a collection of HTTP response headers"""
-    def __init__(self,headers):
+
+    def __init__(self, headers):
         if not isinstance(headers, list):
             raise TypeError("Headers must be a list of name/value tuples")
         self._headers = headers
@@ -86,15 +92,15 @@ class Headers(object):
         del self[name]
         self._headers.append((name, val))
 
-    def __delitem__(self,name):
+    def __delitem__(self, name):
         """Delete all occurrences of a header, if present.
 
         Does *not* raise an exception if the header is missing.
         """
         name = name.lower()
-        self._headers[:] = [kv for kv in self._headers if kv[0].lower()<>name]
+        self._headers[:] = [kv for kv in self._headers if kv[0].lower() <> name]
 
-    def __getitem__(self,name):
+    def __getitem__(self, name):
         """Get the first header value for 'name'
 
         Return None if the header is missing instead of raising an exception.
@@ -120,14 +126,13 @@ class Headers(object):
         If no fields exist with the given name, returns an empty list.
         """
         name = name.lower()
-        return [kv[1] for kv in self._headers if kv[0].lower()==name]
+        return [kv[1] for kv in self._headers if kv[0].lower() == name]
 
-
-    def get(self,name,default=None):
+    def get(self, name, default=None):
         """Get the first header value for 'name', or return 'default'"""
         name = name.lower()
-        for k,v in self._headers:
-            if k.lower()==name:
+        for k, v in self._headers:
+            if k.lower() == name:
                 return v
         return default
 
@@ -167,16 +172,16 @@ class Headers(object):
     def __str__(self):
         """str() returns the formatted headers, complete with end line,
         suitable for direct HTTP transmission."""
-        return '\r\n'.join(["%s: %s" % kv for kv in self._headers]+['',''])
+        return '\r\n'.join(["%s: %s" % kv for kv in self._headers] + ['', ''])
 
-    def setdefault(self,name,value):
+    def setdefault(self, name, value):
         """Return first matching header value for 'name', or 'value'
 
         If there is no header named 'name', add a new header with name 'name'
         and value 'value'."""
         result = self.get(name)
         if result is None:
-            self._headers.append((name,value))
+            self._headers.append((name, value))
             return value
         else:
             return result
@@ -207,35 +212,39 @@ class Headers(object):
                 parts.append(_formatparam(k.replace('_', '-'), v))
         self._headers.append((_name, "; ".join(parts)))
 
+
 def guess_scheme(environ):
     """Return a guess for whether 'wsgi.url_scheme' should be 'http' or 'https'
     """
-    if environ.get("HTTPS") in ('yes','on','1'):
+    if environ.get("HTTPS") in ('yes', 'on', '1'):
         return 'https'
     else:
         return 'http'
 
+
 _hop_headers = {
-    'connection':1, 'keep-alive':1, 'proxy-authenticate':1,
-    'proxy-authorization':1, 'te':1, 'trailers':1, 'transfer-encoding':1,
-    'upgrade':1
+    'connection': 1, 'keep-alive': 1, 'proxy-authenticate': 1,
+    'proxy-authorization': 1, 'te': 1, 'trailers': 1, 'transfer-encoding': 1,
+    'upgrade': 1
 }
+
 
 def is_hop_by_hop(header_name):
     """Return true if 'header_name' is an HTTP/1.1 "Hop-by-Hop" header"""
     return header_name.lower() in _hop_headers
 
+
 class ServerHandler(object):
     """Manage the invocation of a WSGI application"""
 
     # Configuration parameters; can override per-subclass or per-instance
-    wsgi_version = (1,0)
+    wsgi_version = (1, 0)
     wsgi_multithread = True
     wsgi_multiprocess = True
     wsgi_run_once = False
 
-    origin_server = True    # We are transmitting direct to client
-    http_version  = "1.0"   # Version that should be used for response
+    origin_server = True  # We are transmitting direct to client
+    http_version = "1.0"  # Version that should be used for response
     server_software = software_version
 
     # os_environ is used to supply configuration from the OS environment:
@@ -244,13 +253,13 @@ class ServerHandler(object):
     os_environ = dict(os.environ.items())
 
     # Collaborator classes
-    wsgi_file_wrapper = FileWrapper     # set to None to disable
-    headers_class = Headers             # must be a Headers-like class
+    wsgi_file_wrapper = FileWrapper  # set to None to disable
+    headers_class = Headers  # must be a Headers-like class
 
     # Error handling (also per-subclass or per-instance)
     traceback_limit = None  # Print entire traceback to self.get_stderr()
     error_status = "500 INTERNAL SERVER ERROR"
-    error_headers = [('Content-Type','text/plain')]
+    error_headers = [('Content-Type', 'text/plain')]
 
     # State variables (don't mess with these)
     status = result = None
@@ -259,7 +268,7 @@ class ServerHandler(object):
     bytes_sent = 0
 
     def __init__(self, stdin, stdout, stderr, environ, multithread=True,
-        multiprocess=False):
+                 multiprocess=False):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
@@ -284,7 +293,7 @@ class ServerHandler(object):
             except:
                 # If we get an error handling an error, just give up already!
                 self.close()
-                raise   # ...and let the actual server figure it out.
+                raise  # ...and let the actual server figure it out.
 
     def setup_environ(self):
         """Set up the environment for one request"""
@@ -292,19 +301,19 @@ class ServerHandler(object):
         env = self.environ = self.os_environ.copy()
         self.add_cgi_vars()
 
-        env['wsgi.input']        = self.get_stdin()
-        env['wsgi.errors']       = self.get_stderr()
-        env['wsgi.version']      = self.wsgi_version
-        env['wsgi.run_once']     = self.wsgi_run_once
-        env['wsgi.url_scheme']   = self.get_scheme()
-        env['wsgi.multithread']  = self.wsgi_multithread
+        env['wsgi.input'] = self.get_stdin()
+        env['wsgi.errors'] = self.get_stderr()
+        env['wsgi.version'] = self.wsgi_version
+        env['wsgi.run_once'] = self.wsgi_run_once
+        env['wsgi.url_scheme'] = self.get_scheme()
+        env['wsgi.multithread'] = self.wsgi_multithread
         env['wsgi.multiprocess'] = self.wsgi_multiprocess
 
         if self.wsgi_file_wrapper is not None:
             env['wsgi.file_wrapper'] = self.wsgi_file_wrapper
 
         if self.origin_server and self.server_software:
-            env.setdefault('SERVER_SOFTWARE',self.server_software)
+            env.setdefault('SERVER_SOFTWARE', self.server_software)
 
     def finish_response(self):
         """
@@ -332,7 +341,7 @@ class ServerHandler(object):
         except (TypeError, AttributeError, NotImplementedError):
             pass
         else:
-            if blocks==1:
+            if blocks == 1:
                 self.headers['Content-Length'] = str(self.bytes_sent)
                 return
         # XXX Try for chunked encoding if origin server and client is 1.1
@@ -345,7 +354,7 @@ class ServerHandler(object):
         if 'Content-Length' not in self.headers:
             self.set_content_length()
 
-    def start_response(self, status, headers,exc_info=None):
+    def start_response(self, status, headers, exc_info=None):
         """'start_response()' callable as specified by PEP 333"""
 
         if exc_info:
@@ -354,19 +363,19 @@ class ServerHandler(object):
                     # Re-raise original exception if headers sent
                     raise exc_info[0], exc_info[1], exc_info[2]
             finally:
-                exc_info = None        # avoid dangling circular ref
+                exc_info = None  # avoid dangling circular ref
         elif self.headers is not None:
             raise AssertionError("Headers already set!")
 
-        assert isinstance(status, str),"Status must be a string"
-        assert len(status)>=4,"Status must be at least 4 characters"
-        assert int(status[:3]),"Status message must begin w/3-digit code"
-        assert status[3]==" ", "Status message must have a space after code"
+        assert isinstance(status, str), "Status must be a string"
+        assert len(status) >= 4, "Status must be at least 4 characters"
+        assert int(status[:3]), "Status message must begin w/3-digit code"
+        assert status[3] == " ", "Status message must have a space after code"
         if __debug__:
-            for name,val in headers:
-                assert isinstance(name, str),"Header names must be strings"
-                assert isinstance(val, str),"Header values must be strings"
-                assert not is_hop_by_hop(name),"Hop-by-hop headers not allowed"
+            for name, val in headers:
+                assert isinstance(name, str), "Header names must be strings"
+                assert isinstance(val, str), "Header values must be strings"
+                assert not is_hop_by_hop(name), "Hop-by-hop headers not allowed"
         self.status = status
         self.headers = self.headers_class(headers)
         return self.write
@@ -375,7 +384,7 @@ class ServerHandler(object):
         """Transmit version/status/date/server, via self._write()"""
         if self.origin_server:
             if self.client_is_modern():
-                self._write('HTTP/%s %s\r\n' % (self.http_version,self.status))
+                self._write('HTTP/%s %s\r\n' % (self.http_version, self.status))
                 if 'Date' not in self.headers:
                     self._write(
                         'Date: %s\r\n' % http_date()
@@ -395,7 +404,7 @@ class ServerHandler(object):
 
         elif not self.headers_sent:
             # Before the first output, send the stored headers
-            self.bytes_sent = len(data)    # make sure we know content-length
+            self.bytes_sent = len(data)  # make sure we know content-length
             self.send_headers()
         else:
             self.bytes_sent += len(data)
@@ -409,7 +418,7 @@ class ServerHandler(object):
             offset = 0
             while offset < length:
                 chunk_size = min(33554432, length)
-                self._write(data[offset:offset+chunk_size])
+                self._write(data[offset:offset + chunk_size])
                 self._flush()
                 offset += chunk_size
         else:
@@ -434,7 +443,7 @@ class ServerHandler(object):
         'self.headers_sent' is false and it is going to attempt direct
         transmission of the file1.
         """
-        return False   # No platform-specific transmission by default
+        return False  # No platform-specific transmission by default
 
     def finish_content(self):
         """Ensure headers and content have both been sent"""
@@ -442,18 +451,19 @@ class ServerHandler(object):
             self.headers['Content-Length'] = "0"
             self.send_headers()
         else:
-            pass # XXX check if content-length was too short?
+            pass  # XXX check if content-length was too short?
 
     def close(self):
         try:
-            self.request_handler.log_request(self.status.split(' ',1)[0], self.bytes_sent)
+            self.request_handler.log_request(self.status.split(' ', 1)[0], self.bytes_sent)
         finally:
             try:
-                if hasattr(self.result,'close'):
+                if hasattr(self.result, 'close'):
                     self.result.close()
             finally:
                 self.result = self.headers = self.status = self.environ = None
-                self.bytes_sent = 0; self.headers_sent = False
+                self.bytes_sent = 0;
+                self.headers_sent = False
 
     def send_headers(self):
         """Transmit headers to the client, via self._write()"""
@@ -466,13 +476,13 @@ class ServerHandler(object):
     def result_is_file(self):
         """True if 'self.result' is an instance of 'self.wsgi_file_wrapper'"""
         wrapper = self.wsgi_file_wrapper
-        return wrapper is not None and isinstance(self.result,wrapper)
+        return wrapper is not None and isinstance(self.result, wrapper)
 
     def client_is_modern(self):
         """True if client can accept status and headers"""
         return self.environ['SERVER_PROTOCOL'].upper() != 'HTTP/0.9'
 
-    def log_exception(self,exc_info):
+    def log_exception(self, exc_info):
         """Log the 'exc_info' tuple in the server log
 
         Subclasses may override to retarget the output or change its format.
@@ -503,7 +513,7 @@ class ServerHandler(object):
 
     # Pure abstract methods; *must* be overridden in subclasses
 
-    def _write(self,data):
+    def _write(self, data):
         self.stdout.write(data)
         self._write = self.stdout.write
 
@@ -519,6 +529,7 @@ class ServerHandler(object):
 
     def add_cgi_vars(self):
         self.environ.update(self.base_env)
+
 
 class WSGIServer(HTTPServer):
     """BaseHTTPServer that implements the Python WSGI protocol"""
@@ -538,15 +549,16 @@ class WSGIServer(HTTPServer):
         env['SERVER_NAME'] = self.server_name
         env['GATEWAY_INTERFACE'] = 'CGI/1.1'
         env['SERVER_PORT'] = str(self.server_port)
-        env['REMOTE_HOST']=''
-        env['CONTENT_LENGTH']=''
+        env['REMOTE_HOST'] = ''
+        env['CONTENT_LENGTH'] = ''
         env['SCRIPT_NAME'] = ''
 
     def get_app(self):
         return self.application
 
-    def set_app(self,application):
+    def set_app(self, application):
         self.application = application
+
 
 class WSGIRequestHandler(BaseHTTPRequestHandler):
     server_version = "WSGIServer/" + __version__
@@ -564,9 +576,9 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
         env['SERVER_PROTOCOL'] = self.request_version
         env['REQUEST_METHOD'] = self.command
         if '?' in self.path:
-            path,query = self.path.split('?',1)
+            path, query = self.path.split('?', 1)
         else:
-            path,query = self.path,''
+            path, query = self.path, ''
 
         env['PATH_INFO'] = urllib.unquote(path)
         env['QUERY_STRING'] = query
@@ -582,14 +594,15 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
             env['CONTENT_LENGTH'] = length
 
         for h in self.headers.headers:
-            k,v = h.split(':',1)
-            k=k.replace('-','_').upper(); v=v.strip()
+            k, v = h.split(':', 1)
+            k = k.replace('-', '_').upper();
+            v = v.strip()
             if k in env:
-                continue                    # skip content length, type,etc.
-            if 'HTTP_'+k in env:
-                env['HTTP_'+k] += ','+v     # comma-separate multiple headers
+                continue  # skip content length, type,etc.
+            if 'HTTP_' + k in env:
+                env['HTTP_' + k] += ',' + v  # comma-separate multiple headers
             else:
-                env['HTTP_'+k] = v
+                env['HTTP_' + k] = v
         return env
 
     def get_stderr(self):
@@ -598,10 +611,10 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
     def handle(self):
         """Handle a single HTTP request"""
         self.raw_requestline = self.rfile.readline()
-        if not self.parse_request(): # An error code has been sent, just exit
+        if not self.parse_request():  # An error code has been sent, just exit
             return
         handler = ServerHandler(self.rfile, self.wfile, self.get_stderr(), self.get_environ())
-        handler.request_handler = self      # backpointer for logging
+        handler.request_handler = self  # backpointer for logging
         handler.run(self.server.get_app())
 
     def log_message(self, format, *args):
@@ -610,6 +623,7 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
             return
         sys.stderr.write("[%s] %s\n" % (self.log_date_time_string(), format % args))
 
+
 class AdminMediaHandler(object):
     """
     WSGI middleware that intercepts calls to the admin media directory, as
@@ -617,13 +631,13 @@ class AdminMediaHandler(object):
     Use this ONLY LOCALLY, for development! This hasn't been tested for
     security and is not super efficient.
     """
+
     def __init__(self, application, media_dir=None):
         from django.conf import settings
         self.application = application
         if not media_dir:
             import django
-            self.media_dir = \
-                os.path.join(django.__path__[0], 'contrib', 'admin', 'media')
+            self.media_dir = os.path.join(django.__path__[0], 'contrib', 'admin', 'media')
         else:
             self.media_dir = media_dir
         self.media_url = settings.ADMIN_MEDIA_PREFIX
@@ -647,13 +661,13 @@ class AdminMediaHandler(object):
         # Ignore requests that aren't under ADMIN_MEDIA_PREFIX. Also ignore
         # all requests if ADMIN_MEDIA_PREFIX isn't a relative URL.
         if self.media_url.startswith('http://') or self.media_url.startswith('https://') \
-            or not environ['PATH_INFO'].startswith(self.media_url):
+                or not environ['PATH_INFO'].startswith(self.media_url):
             return self.application(environ, start_response)
 
         # Find the admin file and serve it up, if it exists and is readable.
         try:
             file_path = self.file_path(environ['PATH_INFO'])
-        except ValueError: # Resulting file path was not valid.
+        except ValueError:  # Resulting file path was not valid.
             status = '404 NOT FOUND'
             headers = {'Content-type': 'text/plain'}
             output = ['Page not found: %s' % environ['PATH_INFO']]
@@ -690,6 +704,7 @@ class AdminMediaHandler(object):
                     fp.close()
         start_response(status, headers.items())
         return output
+
 
 def run(addr, port, wsgi_handler):
     server_address = (addr, port)

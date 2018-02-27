@@ -83,7 +83,3 @@ class Command(BaseCommand):
             autoreload.main(inner_run)
         else:
             inner_run()
-
-
-if __name__ == "__main__":
-    print(Command.help)

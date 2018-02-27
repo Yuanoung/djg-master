@@ -1,3 +1,4 @@
+# coding: utf-8
 # Autoreloading launcher.
 # Borrowed from Peter Hunt and the CherryPy project (http://www.cherrypy.org).
 # Some taken from Ian Bicking's Paste (http://pythonpaste.org/).
@@ -42,11 +43,11 @@ try:
 except ImportError:
     pass
 
-
 RUN_RELOADER = True
 
 _mtimes = {}
 _win = (sys.platform == "win32")
+
 
 def code_changed():
     global _mtimes, _win
@@ -54,7 +55,7 @@ def code_changed():
         if filename.endswith(".pyc") or filename.endswith(".pyo"):
             filename = filename[:-1]
         if not os.path.exists(filename):
-            continue # File might be in an egg, so it can't be reloaded.
+            continue  # File might be in an egg, so it can't be reloaded.
         stat = os.stat(filename)
         mtime = stat.st_mtime
         if _win:
@@ -67,15 +68,17 @@ def code_changed():
             return True
     return False
 
+
 def reloader_thread():
     while RUN_RELOADER:
         if code_changed():
-            sys.exit(3) # force reload
+            sys.exit(3)  # force reload
         time.sleep(1)
+
 
 def restart_with_reloader():
     while True:
-        args = [sys.executable] + sys.argv
+        args = [sys.executable] + sys.argv  # ['/usr/bin/python2.7', '/path/examples/manage.py']
         if sys.platform == "win32":
             args = ['"%s"' % arg for arg in args]
         new_environ = os.environ.copy()
@@ -83,6 +86,7 @@ def restart_with_reloader():
         exit_code = os.spawnve(os.P_WAIT, sys.executable, args, new_environ)
         if exit_code != 3:
             return exit_code
+
 
 def python_reloader(main_func, args, kwargs):
     if os.environ.get("RUN_MAIN") == "true":
@@ -96,6 +100,7 @@ def python_reloader(main_func, args, kwargs):
             sys.exit(restart_with_reloader())
         except KeyboardInterrupt:
             pass
+
 
 def jython_reloader(main_func, args, kwargs):
     from _systemrestart import SystemRestart
@@ -116,4 +121,3 @@ def main(main_func, args=None, kwargs=None):
     else:
         reloader = python_reloader
     reloader(main_func, args, kwargs)
-

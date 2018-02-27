@@ -123,13 +123,13 @@ SERVER_EMAIL = 'root@localhost'
 SEND_BROKEN_LINK_EMAILS = False
 
 # Database connection info.
-DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''             # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-DATABASE_OPTIONS = {}          # Set to empty dictionary for default.
+DATABASE_ENGINE = ''  # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = ''  # Or path to database file if using sqlite3.
+DATABASE_USER = ''  # Not used with sqlite3.
+DATABASE_PASSWORD = ''  # Not used with sqlite3.
+DATABASE_HOST = ''  # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_PORT = ''  # Set to empty string for default. Not used with sqlite3.
+DATABASE_OPTIONS = {}  # Set to empty dictionary for default.
 
 # Host for sending e-mail.
 EMAIL_HOST = 'localhost'
@@ -154,7 +154,7 @@ TEMPLATE_DIRS = ()
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
+    #     'django.template.loaders.eggs.load_template_source',
 )
 
 # List of processors used by RequestContext to populate the context.
@@ -165,7 +165,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
-#    'django.core.context_processors.request',
+    #    'django.core.context_processors.request',
 )
 
 # Output to use in template system for invalid (e.g. misspelled) variables.
@@ -247,7 +247,7 @@ FILE_UPLOAD_HANDLERS = (
 
 # Maximum size, in bytes, of a request before it will be streamed to the
 # file system instead of into memory.
-FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 # i.e. 2.5 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440  # i.e. 2.5 MB
 
 # Directory in which upload streamed files will be temporarily saved. A value of
 # `None` will make Django use the operating system's default temporary directory
@@ -287,6 +287,7 @@ TRANSACTIONS_MANAGED = False
 # The User-Agent string to use when checking for URL validity through the
 # isExistingURL validator.
 from django import get_version
+
 URL_VALIDATOR_USER_AGENT = "Django/%s (http://www.djangoproject.com)" % get_version()
 
 # The tablespaces to use for each model when not specified otherwise.
@@ -303,8 +304,8 @@ DEFAULT_INDEX_TABLESPACE = ''
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.middleware.http.ConditionalGetMiddleware',
-#     'django.middleware.gzip.GZipMiddleware',
+    #     'django.middleware.http.ConditionalGetMiddleware',
+    #     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
 )
 
@@ -312,15 +313,15 @@ MIDDLEWARE_CLASSES = (
 # SESSIONS #
 ############
 
-SESSION_COOKIE_NAME = 'sessionid'                       # Cookie name. This can be whatever you want.
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 2               # Age of cookie, in seconds (default: 2 weeks).
-SESSION_COOKIE_DOMAIN = None                            # A string like ".lawrence.com", or None for standard domain cookie.
-SESSION_COOKIE_SECURE = False                           # Whether the session cookie should be secure (https:// only).
-SESSION_COOKIE_PATH = '/'                               # The path of the session cookie.
-SESSION_SAVE_EVERY_REQUEST = False                      # Whether to save the session data on every request.
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False                 # Whether a user's session cookie expires when the Web browser is closed.
+SESSION_COOKIE_NAME = 'sessionid'  # Cookie name. This can be whatever you want.
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 2  # Age of cookie, in seconds (default: 2 weeks).
+SESSION_COOKIE_DOMAIN = None  # A string like ".lawrence.com", or None for standard domain cookie.
+SESSION_COOKIE_SECURE = False  # Whether the session cookie should be secure (https:// only).
+SESSION_COOKIE_PATH = '/'  # The path of the session cookie.
+SESSION_SAVE_EVERY_REQUEST = False  # Whether to save the session data on every request.
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Whether a user's session cookie expires when the Web browser is closed.
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # The module to store session data
-SESSION_FILE_PATH = None                                # Directory to store session files if using the file session module. If None, the backend will use a sensible default.
+SESSION_FILE_PATH = None  # Directory to store session files if using the file session module. If None, the backend will use a sensible default.
 
 #########
 # CACHE #

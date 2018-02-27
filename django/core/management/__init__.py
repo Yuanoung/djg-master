@@ -22,7 +22,7 @@ def find_commands(management_dir):
 
     Returns an empty list if no commands are defined.
     """
-    command_dir = os.path.join(management_dir, 'commands')
+    command_dir = os.path.join(management_dir, 'commands')  # django/core/management/commands
     try:
         return [f[:-3] for f in os.listdir(command_dir)
                 if not f.startswith('_') and f.endswith('.py')]
@@ -101,8 +101,8 @@ def get_commands():
 
         # Find the installed apps
         try:
-            from django.conf import settings
-            apps = settings.INSTALLED_APPS
+            from django.conf import settings  # 這裏導入默認的settings
+            apps = settings.INSTALLED_APPS  # 进入settings.__getattr__特殊方法
         except (AttributeError, EnvironmentError, ImportError):
             apps = []
 
@@ -282,7 +282,7 @@ class ManagementUtility(object):
         # Preprocess options to extract --settings and --pythonpath.
         # These options could affect the commands that are available, so they
         # must be processed early.
-        parser = LaxOptionParser(usage="%prog subcommand [options] [args]",
+        parser = LaxOptionParser(usage="%prog subcommand [options] [args]",  # 選項解析器
                                  version=get_version(),
                                  option_list=BaseCommand.option_list)
         try:
@@ -345,7 +345,7 @@ def setup_environ(settings_mod, original_settings_path=None):
     if original_settings_path:
         os.environ['DJANGO_SETTINGS_MODULE'] = original_settings_path
     else:
-        os.environ['DJANGO_SETTINGS_MODULE'] = '%s.%s' % (project_name, settings_name)  # examples.settings
+        os.environ['DJANGO_SETTINGS_MODULE'] = '%s.%s' % (project_name, settings_name)  # examples.settings,重點是這句
 
     # Import the project module. We add the parent directory to PYTHONPATH to
     # avoid some of the path errors new users can have.

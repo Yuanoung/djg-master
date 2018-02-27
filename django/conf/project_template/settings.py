@@ -77,3 +77,5 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
 )
+
+print("django.conf.project_template.setttings")

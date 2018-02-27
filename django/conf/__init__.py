@@ -1,3 +1,4 @@
+# coding:utf-8
 """
 Settings and configuration for Django.
 
@@ -8,12 +9,13 @@ a list of all possible variables.
 
 import os
 import re
-import time     # Needed for Windows
+import time  # Needed for Windows
 
 from django.conf import global_settings
 from django.utils.functional import LazyObject
 
 ENVIRONMENT_VARIABLE = "DJANGO_SETTINGS_MODULE"
+
 
 class LazySettings(LazyObject):
     """
@@ -21,6 +23,7 @@ class LazySettings(LazyObject):
     The user can manually configure settings prior to using them. Otherwise,
     Django uses the settings module pointed to by DJANGO_SETTINGS_MODULE.
     """
+
     def _setup(self):
         """
         Load the settings module pointed to by the environment variable. This
@@ -29,12 +32,13 @@ class LazySettings(LazyObject):
         """
         try:
             settings_module = os.environ[ENVIRONMENT_VARIABLE]
-            if not settings_module: # If it's set but is an empty string.
+            if not settings_module:  # If it's set but is an empty string.
                 raise KeyError
         except KeyError:
             # NOTE: This is arguably an EnvironmentError, but that causes
             # problems with Python's interactive help.
-            raise ImportError("Settings cannot be imported, because environment variable %s is undefined." % ENVIRONMENT_VARIABLE)
+            raise ImportError(
+                "Settings cannot be imported, because environment variable %s is undefined." % ENVIRONMENT_VARIABLE)
 
         self._wrapped = Settings(settings_module)
 
@@ -56,7 +60,9 @@ class LazySettings(LazyObject):
         Returns True if the settings have already been configured.
         """
         return bool(self._wrapped)
+
     configured = property(configured)
+
 
 class Settings(object):
     def __init__(self, settings_module):
@@ -69,9 +75,10 @@ class Settings(object):
         self.SETTINGS_MODULE = settings_module
 
         try:
-            mod = __import__(self.SETTINGS_MODULE, {}, {}, [''])
+            mod = __import__(self.SETTINGS_MODULE, {}, {}, [''])  # 自己的settings.py
         except ImportError, e:
-            raise ImportError, "Could not import settings '%s' (Is it on sys.path? Does it have syntax errors?): %s" % (self.SETTINGS_MODULE, e)
+            raise ImportError, "Could not import settings '%s' (Is it on sys.path? " \
+                               "Does it have syntax errors?): %s" % (self.SETTINGS_MODULE, e)
 
         # Settings that should be converted into tuples if they're mistakenly entered
         # as strings.
@@ -81,7 +88,7 @@ class Settings(object):
             if setting == setting.upper():
                 setting_value = getattr(mod, setting)
                 if setting in tuple_settings and type(setting_value) == str:
-                    setting_value = (setting_value,) # In case the user forgot the comma.
+                    setting_value = (setting_value,)  # In case the user forgot the comma.
                 setattr(self, setting, setting_value)
 
         # Expand entries in INSTALLED_APPS like "django.contrib.*" to a list
@@ -109,6 +116,7 @@ class Settings(object):
     def get_all_members(self):
         return dir(self)
 
+
 class UserSettingsHolder(object):
     """
     Holder for user configured settings.
@@ -130,5 +138,5 @@ class UserSettingsHolder(object):
     def get_all_members(self):
         return dir(self) + dir(self.default_settings)
 
-settings = LazySettings()
 
+settings = LazySettings()
