@@ -1,5 +1,6 @@
 from django.utils.http import http_date
 
+
 class ConditionalGetMiddleware(object):
     """
     Handles conditional GET operations. If the response has a ETag or
@@ -8,6 +9,7 @@ class ConditionalGetMiddleware(object):
 
     Also sets the Date and Content-Length response-headers.
     """
+
     def process_response(self, request, response):
         response['Date'] = http_date()
         if not response.has_header('Content-Length'):
@@ -30,6 +32,7 @@ class ConditionalGetMiddleware(object):
 
         return response
 
+
 class SetRemoteAddrFromForwardedFor(object):
     """
     Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the
@@ -43,6 +46,7 @@ class SetRemoteAddrFromForwardedFor(object):
     anybody can "fake" their IP address. Only use this when you can absolutely
     trust the value of HTTP_X_FORWARDED_FOR.
     """
+
     def process_request(self, request):
         try:
             real_ip = request.META['HTTP_X_FORWARDED_FOR']

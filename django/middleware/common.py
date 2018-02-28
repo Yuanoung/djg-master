@@ -7,6 +7,7 @@ from django.utils.http import urlquote
 from django.core import urlresolvers
 from django.utils.hashcompat import md5_constructor
 
+
 class CommonMiddleware(object):
     """
     "Common" middleware for taking care of some basic operations:
@@ -58,12 +59,12 @@ class CommonMiddleware(object):
                 new_url[1] = new_url[1] + '/'
                 if settings.DEBUG and request.method == 'POST':
                     raise RuntimeError, (""
-                    "You called this URL via POST, but the URL doesn't end "
-                    "in a slash and you have APPEND_SLASH set. Django can't "
-                    "redirect to the slash URL while maintaining POST data. "
-                    "Change your form to point to %s%s (note the trailing "
-                    "slash), or set APPEND_SLASH=False in your Django "
-                    "settings.") % (new_url[0], new_url[1])
+                                         "You called this URL via POST, but the URL doesn't end "
+                                         "in a slash and you have APPEND_SLASH set. Django can't "
+                                         "redirect to the slash URL while maintaining POST data. "
+                                         "Change your form to point to %s%s (note the trailing "
+                                         "slash), or set APPEND_SLASH=False in your Django "
+                                         "settings.") % (new_url[0], new_url[1])
 
         if new_url == old_url:
             # No redirects required.
@@ -92,7 +93,7 @@ class CommonMiddleware(object):
                     ua = request.META.get('HTTP_USER_AGENT', '<none>')
                     ip = request.META.get('REMOTE_ADDR', '<none>')
                     mail_managers("Broken %slink on %s" % ((is_internal and 'INTERNAL ' or ''), domain),
-                        "Referrer: %s\nRequested URL: %s\nUser agent: %s\nIP address: %s\n" \
+                                  "Referrer: %s\nRequested URL: %s\nUser agent: %s\nIP address: %s\n" \
                                   % (referer, request.get_full_path(), ua, ip))
                 return response
 
@@ -102,7 +103,8 @@ class CommonMiddleware(object):
                 etag = response['ETag']
             else:
                 etag = '"%s"' % md5_constructor(response.content).hexdigest()
-            if response.status_code >= 200 and response.status_code < 300 and request.META.get('HTTP_IF_NONE_MATCH') == etag:
+            if response.status_code >= 200 and response.status_code < 300 and request.META.get(
+                    'HTTP_IF_NONE_MATCH') == etag:
                 cookies = response.cookies
                 response = http.HttpResponseNotModified()
                 response.cookies = cookies
@@ -110,6 +112,7 @@ class CommonMiddleware(object):
                 response['ETag'] = etag
 
         return response
+
 
 def _is_ignorable_404(uri):
     """
@@ -123,12 +126,14 @@ def _is_ignorable_404(uri):
             return True
     return False
 
+
 def _is_internal_request(domain, referer):
     """
     Returns true if the referring URL is the same domain as the current request.
     """
     # Different subdomains are treated as different domains.
     return referer is not None and re.match("^https?://%s/" % re.escape(domain), referer)
+
 
 def _is_valid_path(path):
     """
@@ -143,4 +148,3 @@ def _is_valid_path(path):
         return True
     except urlresolvers.Resolver404:
         return False
-

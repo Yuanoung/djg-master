@@ -13,4 +13,4 @@ except ImportError:
     sys.exit(1)
 
 if __name__ == "__main__":
-    execute_manager(settings, argv=["manage.py", "runserver"])
+    execute_manager(settings, argv=["manage.py", "runserver", "9000"])
