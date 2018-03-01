@@ -289,7 +289,7 @@ class ServerHandler(object):
         # closing if there might still be output to iterate over.
         try:
             self.setup_environ()
-            self.result = application(self.environ, self.start_response)
+            self.result = application(self.environ, self.start_response)  # 662line
             self.finish_response()
         except:
             try:
@@ -561,7 +561,7 @@ class WSGIServer(HTTPServer):
         return self.application
 
     def set_app(self, application):
-        self.application = application
+        self.application = application  # AdminMediaHandler
 
 
 class WSGIRequestHandler(BaseHTTPRequestHandler):
@@ -636,15 +636,15 @@ class AdminMediaHandler(object):
     security and is not super efficient.
     """
 
-    def __init__(self, application, media_dir=None):
+    def __init__(self, application, media_dir=None):  # application=WSGIHandler(), media_dir=""
         from django.conf import settings
         self.application = application
         if not media_dir:
             import django
-            self.media_dir = os.path.join(django.__path__[0], 'contrib', 'admin', 'media')
+            self.media_dir = os.path.join(django.__path__[0], 'contrib', 'admin', 'media')  # '/home/yuanoung/Projects/django-code-analysis/django/contrib/admin/media'
         else:
             self.media_dir = media_dir
-        self.media_url = settings.ADMIN_MEDIA_PREFIX
+        self.media_url = settings.ADMIN_MEDIA_PREFIX  # /media/
 
     def file_path(self, url):
         """

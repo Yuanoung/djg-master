@@ -77,11 +77,13 @@ FASTCGI_OPTIONS = {
     'umask': None,
 }
 
+
 def fastcgi_help(message=None):
     print FASTCGI_HELP
     if message:
         print message
     return False
+
 
 def runfastcgi(argset=[], **kwargs):
     options = FASTCGI_OPTIONS.copy()
@@ -113,7 +115,7 @@ def runfastcgi(argset=[], **kwargs):
             'maxSpare': int(options["maxspare"]),
             'minSpare': int(options["minspare"]),
             'maxChildren': int(options["maxchildren"]),
-            'maxRequests': int(options["maxrequests"]), 
+            'maxRequests': int(options["maxrequests"]),
         }
         flup_module += '_fork'
     elif options['method'] in ('thread', 'threaded'):
@@ -125,7 +127,7 @@ def runfastcgi(argset=[], **kwargs):
     else:
         return fastcgi_help("ERROR: Implementation must be one of prefork or thread.")
 
-    wsgi_opts['debug'] = False # Turn off flup tracebacks
+    wsgi_opts['debug'] = False  # Turn off flup tracebacks
 
     try:
         WSGIServer = getattr(__import__('flup.' + flup_module, '', '', flup_module), 'WSGIServer')
@@ -174,6 +176,7 @@ def runfastcgi(argset=[], **kwargs):
         fp.close()
 
     WSGIServer(WSGIHandler(), **wsgi_opts).run()
+
 
 if __name__ == '__main__':
     runfastcgi(sys.argv[1:])
