@@ -8,13 +8,16 @@ from django.db import models
 from django.utils.encoding import smart_str, smart_unicode
 from django.utils import datetime_safe
 
+
 class SerializationError(Exception):
     """Something bad happened during serialization."""
     pass
 
+
 class DeserializationError(Exception):
     """Something bad happened during deserialization."""
     pass
+
 
 class Serializer(object):
     """
@@ -109,6 +112,7 @@ class Serializer(object):
         if callable(getattr(self.stream, 'getvalue', None)):
             return self.stream.getvalue()
 
+
 class Deserializer(object):
     """
     Abstract base deserializer class.
@@ -134,6 +138,7 @@ class Deserializer(object):
     def next(self):
         """Iteration iterface -- return the next item in the stream"""
         raise NotImplementedError
+
 
 class DeserializedObject(object):
     """

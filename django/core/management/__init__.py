@@ -101,7 +101,7 @@ def get_commands():
 
         # Find the installed apps
         try:
-            from django.conf import settings  # 這裏導入默認的settings
+            from django.conf import settings  # settings = LazySettings()
             apps = settings.INSTALLED_APPS  # 进入settings.__getattr__特殊方法
         except (AttributeError, EnvironmentError, ImportError):
             apps = []

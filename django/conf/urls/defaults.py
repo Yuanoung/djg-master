@@ -8,6 +8,7 @@ handler500 = 'django.views.defaults.server_error'
 
 include = lambda urlconf_module: [urlconf_module]
 
+
 def patterns(prefix, *args):
     pattern_list = []
     for t in args:
@@ -17,6 +18,7 @@ def patterns(prefix, *args):
             t.add_prefix(prefix)
         pattern_list.append(t)
     return pattern_list
+
 
 def url(regex, view, kwargs=None, name=None, prefix=''):
     if type(view) == list:
@@ -29,4 +31,3 @@ def url(regex, view, kwargs=None, name=None, prefix=''):
             if prefix:
                 view = prefix + '.' + view
         return RegexURLPattern(regex, view, kwargs, name)
-
